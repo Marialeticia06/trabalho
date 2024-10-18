@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Turmas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .nav-button {
+            margin-top: 20px;
+            background-color: #dc3545;
+        }
+        #login-container {
+            background: url('WhatsApp Image 2024-10-18 at 10.49.04 (1).jpeg') no-repeat center center; /* Caminho da sua imagem de login */
+            background-size: cover;
+        }
+        #dashboard-container {
+            background: url('WhatsApp Image 2024-10-18 at 10.49.04.jpeg') no-repeat center center; /* Caminho da sua imagem do painel */
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h1>Login</h1>
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+
+    <div class="container" id="dashboard-container" style="display: none;">
+        <h1>Painel Principal</h1>
+        <div class="button-container">
+            <button onclick="showCadastrarTurma()">Cadastrar Turma</button>
+            <button onclick="showCadastrarAtividade()">Cadastrar Atividade</button>
+            <button onclick="listTurmas()">Listar Turmas</button>
+            <button onclick="listAtividades()">Listar Atividades</button>
+        </div>
+        <button class="nav-button" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="container" id="cadastrar-turma-container" style="display: none;">
+        <h1>Cadastrar Turma</h1>
+        <form id="cadastrar-turma-form" onsubmit="handleCadastrarTurma(event)">
+            <input type="text" id="nome_turma" placeholder="Nome da Turma" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <button class="nav-button" onclick="showDashboard()">Voltar</button>
+    </div>
+
+    <div class="container" id="cadastrar-atividade-container" style="display: none;">
+        <h1>Cadastrar Atividade</h1>
+        <form id="cadastrar-atividade-form" onsubmit="handleCadastrarAtividade(event)">
+            <input type="text" id="descricao_atividade" placeholder="Descrição da Atividade" required>
+            <input type="date" id="data_atividade" required>
+            <input type="date" id="data_encerramento" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <button class="nav-button" onclick="showDashboard()">Voltar</button>
+    </div>
+
+    <div class="container" id="listar-turmas-container" style="display: none;">
+        <h1>Listar Turmas</h1>
+        <table id="turmas-table">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ações</th>
+            </tr>
+        </table>
+        <button class="nav-button" onclick="showDashboard()">Voltar</button>
+    </div>
+
+    <div class="container" id="listar-atividades-container" style="display: none;">
+        <h1>Listar Atividades</h1>
+        <table id="atividades-table">
+            <tr>
+                <th>ID</th>
+                <th>Descrição</th>
+                <th>Data</th>
+                <th>Data de Encerramento</th>
+                <th>Ações</th>
+            </tr>
+        </table>
+        <button class="nav-button" onclick="showDashboard()">Voltar</button>
+    </div>
+
+    <script>
+        let turmas = [];
+        let atividades = [];
+        let turmaId = 1;
+        let atividadeId = 1;
+
+        function handleLogin(event) {
+            event.preventDefault();
+            showDashboard();
+        }
+
+        function handleCadastrarTurma(event) {
+            event.preventDefault();
+            const nome = document.getElementById("nome_turma").value;
+
+            turmas.push({ id: turmaId++, nome: nome });
+            alert("Turma cadastrada com sucesso!");
+            updateTurmasTable();
+            showDashboard();
+        }
+
+        function handleCadastrarAtividade(event) {
+            event.preventDefault();
+            const descricao = document.getElementById("descricao_atividade").value;
+            const data = document.getElementById("data_atividade").value;
+            const dataEncerramento = document.getElementById("data_encerramento").value;
+
+            atividades.push({ id: atividadeId++, descricao: descricao, data: data, data_encerramento: dataEncerramento });
+            alert("Atividade cadastrada com sucesso!");
+            updateAtividadesTable();
+            showDashboard();
+        }
+
+        function listTurmas() {
+            updateTurmasTable();
+            showListarTurmas();
+        }
+
+        function listAtividades() {
+            updateAtividadesTable();
+            showListarAtividades();
+        }
+
+        function updateTurmasTable() {
+            const table = document.getElementById("turmas-table");
+            table.innerHTML = `
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            `;
+            turmas.forEach(turma => {
+                const row = table.insertRow();
+                row.insertCell(0).innerText = turma.id;
+                row.insertCell(1).innerText = turma.nome;
+                const deleteCell = row.insertCell(2);
+                const deleteButton = document.createElement("button");
+                deleteButton.innerText = "Excluir";
+                deleteButton.onclick = () => {
+                    turmas = turmas.filter(t => t.id !== turma.id);
+                    updateTurmasTable();
+                    alert("Turma excluída com sucesso!");
+                };
+                deleteCell.appendChild(deleteButton);
+            });
+        }
+
+        function updateAtividadesTable() {
+            const table = document.getElementById("atividades-table");
+            table.innerHTML = `
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Data</th>
+                    <th>Data de Encerramento</th>
+                    <th>Ações</th>
+                </tr>
+            `;
+            atividades.forEach(atividade => {
+                const row = table.insertRow();
+                row.insertCell(0).innerText = atividade.id;
+                row.insertCell(1).innerText = atividade.descricao;
+                row.insertCell(2).innerText = atividade.data;
+                row.insertCell(3).innerText = atividade.data_encerramento;
+                const deleteCell = row.insertCell(4);
+                const deleteButton = document.createElement("button");
+                deleteButton.innerText = "Excluir";
+                deleteButton.onclick = () => {
+                    atividades = atividades.filter(a => a.id !== atividade.id);
+                    updateAtividadesTable();
+                    alert("Atividade excluída com sucesso!");
+                };
+                deleteCell.appendChild(deleteButton);
+            });
+        }
+
+        function showDashboard() {
+            toggleVisibility("login-container", false);
+            toggleVisibility("dashboard-container", true);
+            toggleVisibility("cadastrar-turma-container", false);
+            toggleVisibility("cadastrar-atividade-container", false);
+            toggleVisibility("listar-turmas-container", false);
+            toggleVisibility("listar-atividades-container", false);
+        }
+
+        function showCadastrarTurma() {
+            toggleVisibility("cadastrar-turma-container", true);
+            toggleVisibility("dashboard-container", false);
+        }
+
+        function showCadastrarAtividade() {
+            toggleVisibility("cadastrar-atividade-container", true);
+            toggleVisibility("dashboard-container", false);
+        }
+
+        function showListarTurmas() {
+            toggleVisibility("listar-turmas-container", true);
+            toggleVisibility("dashboard-container", false);
+        }
+
+        function showListarAtividades() {
+            toggleVisibility("listar-atividades-container", true);
+            toggleVisibility("dashboard-container", false);
+        }
+
+        function logout() {
+            toggleVisibility("login-container", true);
+            toggleVisibility("dashboard-container", false);
+            toggleVisibility("cadastrar-turma-container", false);
+            toggleVisibility("cadastrar-atividade-container", false);
+            toggleVisibility("listar-turmas-container", false);
+            toggleVisibility("listar-atividades-container", false);
+            document.getElementById("login-form").reset();
+        }
+
+        function toggleVisibility(id, isVisible) {
+            document.getElementById(id).style.display = isVisible ? "block" : "none";
+        }
+
+        // Inicializa a tela de login
+        document.getElementById("login-container").style.display = "block";
+    </script>
+</body>
+</html>
